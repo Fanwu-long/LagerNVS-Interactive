@@ -1,0 +1,14 @@
+自检修复完成 + Live 已重连隧道
+
+job: 61426 · anode16 · 11.11.10.16
+
+【推荐 Live】
+  https://f36573b25e841f.lhr.life/
+【备选 CF】
+  https://receivers-selling-permits-cart.trycloudflare.com/
+【本机】SSH 二次验证后：
+  ssh -L 8765:11.11.10.16:8765 -N ustc-lager
+  → http://127.0.0.1:8765/
+
+门户：http://127.0.0.1:8766/?v=me
+A 默认最清晰轨道 + 自动环绕；B 可重试。

@@ -1,0 +1,29 @@
+{
+  "edition": "me",
+  "live_url_me": "http://127.0.0.1:8765/",
+  "live_url_share": "https://f36573b25e841f.lhr.life/",
+  "live_url_fallback": "https://f36573b25e841f.lhr.life/",
+  "offline_path": "/07_交互式渲染演示/06_交互功能优化/offline_orbit_viewer.html",
+  "free_path": "/07_交互式渲染演示/06_交互功能优化/free_camera.html",
+  "tech_path": "/07_交互式渲染演示/06_交互功能优化/tech_principles.html",
+  "portal_path": "/07_交互式渲染演示/06_交互功能优化/portal.html",
+  "stats": {
+    "scenes": 10,
+    "hq_stills": 5,
+    "orbit_clips": 10,
+    "hq_orbits": 5,
+    "input_thumbs": 24,
+    "dropped_soft_orbits": [
+      "0f2197967bb7fa43_00022",
+      "189f95593df3c7f1_00004",
+      "357ddf77c7b83cae_00004",
+      "4a763e1b87e495a7_00024",
+      "59636f39d067119d_00000",
+      "demo"
+    ]
+  },
+  "updated": "2026-09-13 14:39:30",
+  "live_url_cf": "https://receivers-selling-permits-cart.trycloudflare.com/",
+  "gpu_ip": "11.11.10.16",
+  "job": "61426"
+}

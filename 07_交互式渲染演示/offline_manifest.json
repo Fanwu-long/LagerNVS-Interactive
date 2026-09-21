@@ -1,0 +1,204 @@
+{
+  "title": "Interactive demo",
+  "subtitle": "10 场景 · 5 个 HQ 静帧已做成可 scrub Orbit · 另含合格环绕轨道",
+  "page": "07_交互式渲染演示/06_交互功能优化/offline_orbit_viewer.html",
+  "quality_note": "HQ→Orbit：有 showcase 的用 512 神经相机轨迹；无轨迹的由 Pred 静帧合成视差。可随时切回 HQ Still 查看 GT|Pred。",
+  "stats": {
+    "scenes": 10,
+    "hq_stills": 5,
+    "orbit_clips": 10,
+    "hq_orbits": 5,
+    "input_thumbs": 24,
+    "dropped_soft_orbits": [
+      "0f2197967bb7fa43_00022",
+      "189f95593df3c7f1_00004",
+      "357ddf77c7b83cae_00004",
+      "4a763e1b87e495a7_00024",
+      "59636f39d067119d_00000",
+      "demo"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "hq_eae986c8f31081cc_00051",
+      "title": "eae986c8f31081cc_00051",
+      "group": "1 · HQ → Orbit",
+      "mode": "video",
+      "still": "03_最终成果包/lagernvs_final/02_top20_gt_pred/COMPARE_eae986c8f31081cc_00051.png",
+      "video": "07_交互式渲染演示/03_环绕轨道视频_orbit_v4/hq_from_still/orbit_hq_eae986c8f31081cc_00051.mp4",
+      "video_alt": null,
+      "path_video": null,
+      "inputs": [],
+      "note": "HQ orbit · 6v 神经轨迹 · 可 scrub",
+      "quality": "hq",
+      "w": 512,
+      "h": 288
+    },
+    {
+      "id": "hq_e9670b30a2c0e348_00001",
+      "title": "e9670b30a2c0e348_00001",
+      "group": "1 · HQ → Orbit",
+      "mode": "video",
+      "still": "03_最终成果包/lagernvs_final/02_top20_gt_pred/COMPARE_e9670b30a2c0e348_00001.png",
+      "video": "07_交互式渲染演示/03_环绕轨道视频_orbit_v4/hq_from_still/orbit_hq_e9670b30a2c0e348_00001.mp4",
+      "video_alt": null,
+      "path_video": null,
+      "inputs": [
+        "03_最终成果包/lagernvs_final/07_input_views/e9670b30a2c0e348_inputs/in_2v_00000.png",
+        "03_最终成果包/lagernvs_final/07_input_views/e9670b30a2c0e348_inputs/in_2v_00047.png",
+        "03_最终成果包/lagernvs_final/07_input_views/e9670b30a2c0e348_inputs/in_6v_00000.png",
+        "03_最终成果包/lagernvs_final/07_input_views/e9670b30a2c0e348_inputs/in_6v_00009.png",
+        "03_最终成果包/lagernvs_final/07_input_views/e9670b30a2c0e348_inputs/in_6v_00019.png",
+        "03_最终成果包/lagernvs_final/07_input_views/e9670b30a2c0e348_inputs/in_6v_00028.png"
+      ],
+      "note": "HQ orbit · 6v 神经轨迹 · 6 inputs · 可 scrub",
+      "quality": "hq",
+      "w": 512,
+      "h": 288
+    },
+    {
+      "id": "hq_45a00d135c5388fc_00012",
+      "title": "45a00d135c5388fc_00012",
+      "group": "1 · HQ → Orbit",
+      "mode": "video",
+      "still": "03_最终成果包/lagernvs_final/02_top20_gt_pred/COMPARE_45a00d135c5388fc_00012.png",
+      "video": "07_交互式渲染演示/03_环绕轨道视频_orbit_v4/hq_from_still/orbit_hq_45a00d135c5388fc_00012.mp4",
+      "video_alt": "07_交互式渲染演示/03_环绕轨道视频_orbit_v4/orbit_45a00d135c5388fc_00012.mp4",
+      "path_video": null,
+      "inputs": [
+        "03_最终成果包/lagernvs_final/07_input_views/45a00d135c5388fc_inputs/in_6v_00000.png",
+        "03_最终成果包/lagernvs_final/07_input_views/45a00d135c5388fc_inputs/in_6v_00016.png",
+        "03_最终成果包/lagernvs_final/07_input_views/45a00d135c5388fc_inputs/in_6v_00032.png",
+        "03_最终成果包/lagernvs_final/07_input_views/45a00d135c5388fc_inputs/in_6v_00049.png",
+        "03_最终成果包/lagernvs_final/07_input_views/45a00d135c5388fc_inputs/in_6v_00065.png",
+        "03_最终成果包/lagernvs_final/07_input_views/45a00d135c5388fc_inputs/in_6v_00081.png"
+      ],
+      "note": "HQ orbit · 6v 神经轨迹 · 6 inputs · 可 scrub",
+      "quality": "hq",
+      "w": 512,
+      "h": 288
+    },
+    {
+      "id": "hq_fbcd62ab8ff30b4f_00013",
+      "title": "fbcd62ab8ff30b4f_00013",
+      "group": "1 · HQ → Orbit",
+      "mode": "video",
+      "still": "03_最终成果包/lagernvs_final/02_top20_gt_pred/COMPARE_fbcd62ab8ff30b4f_00013.png",
+      "video": "07_交互式渲染演示/03_环绕轨道视频_orbit_v4/hq_from_still/orbit_hq_fbcd62ab8ff30b4f_00013.mp4",
+      "video_alt": null,
+      "path_video": null,
+      "inputs": [],
+      "note": "HQ orbit · Pred 视差轨迹 · 可 scrub",
+      "quality": "hq",
+      "w": 512,
+      "h": 288
+    },
+    {
+      "id": "hq_c1ad4232258e87c9_00014",
+      "title": "c1ad4232258e87c9_00014",
+      "group": "1 · HQ → Orbit",
+      "mode": "video",
+      "still": "03_最终成果包/lagernvs_final/02_top20_gt_pred/COMPARE_c1ad4232258e87c9_00014.png",
+      "video": "07_交互式渲染演示/03_环绕轨道视频_orbit_v4/hq_from_still/orbit_hq_c1ad4232258e87c9_00014.mp4",
+      "video_alt": null,
+      "path_video": null,
+      "inputs": [],
+      "note": "HQ orbit · Pred 视差轨迹 · 可 scrub",
+      "quality": "hq",
+      "w": 512,
+      "h": 288
+    },
+    {
+      "id": "scenea_2v",
+      "title": "scene_a · 2 views（最清晰轨道）",
+      "group": "2 · Orbit（已筛软糊）",
+      "mode": "video",
+      "still": null,
+      "video": "07_交互式渲染演示/03_环绕轨道视频_orbit_v4/orbit_scenea_2v.mp4",
+      "video_alt": null,
+      "path_video": "07_交互式渲染演示/04_多视角直线演示视频_240f/scenea_2v_240f.mp4",
+      "inputs": [
+        "07_交互式渲染演示/01_输入视图_demo与自采/scene_a/v1.jpg",
+        "07_交互式渲染演示/01_输入视图_demo与自采/scene_a/v2.jpg"
+      ],
+      "note": "包内码率最高 · 优先演示",
+      "quality": "good",
+      "w": 640,
+      "h": 408
+    },
+    {
+      "id": "scenea_4v",
+      "title": "scene_a · 4 views",
+      "group": "2 · Orbit（已筛软糊）",
+      "mode": "video",
+      "still": null,
+      "video": "07_交互式渲染演示/03_环绕轨道视频_orbit_v4/orbit_scenea_4v.mp4",
+      "video_alt": "07_交互式渲染演示/03_环绕轨道视频_orbit_v4/orbit_scenea_4v_up.mp4",
+      "path_video": "07_交互式渲染演示/04_多视角直线演示视频_240f/scenea_4v_240f.mp4",
+      "inputs": [
+        "07_交互式渲染演示/01_输入视图_demo与自采/scene_a/v1.jpg",
+        "07_交互式渲染演示/01_输入视图_demo与自采/scene_a/v2.jpg",
+        "07_交互式渲染演示/01_输入视图_demo与自采/scene_a/v3.jpg",
+        "07_交互式渲染演示/01_输入视图_demo与自采/scene_a/v4.jpg"
+      ],
+      "note": "4 inputs · 原生编码（非放大）",
+      "quality": "ok",
+      "w": 640,
+      "h": 584
+    },
+    {
+      "id": "3a3bc11b9ebb7d44_00017",
+      "title": "3a3bc11b9ebb7d44_00017",
+      "group": "2 · Orbit（已筛软糊）",
+      "mode": "video",
+      "still": null,
+      "video": "07_交互式渲染演示/03_环绕轨道视频_orbit_v4/orbit_3a3bc11b9ebb7d44_00017.mp4",
+      "video_alt": null,
+      "path_video": null,
+      "inputs": [
+        "07_交互式渲染演示/02_输入视图_DL3DV精选/3a3bc11b9ebb7d44_00017/input_000000.png",
+        "07_交互式渲染演示/02_输入视图_DL3DV精选/3a3bc11b9ebb7d44_00017/input_000001.png"
+      ],
+      "note": "清晰度合格 · 2 inputs",
+      "quality": "ok",
+      "w": 640,
+      "h": 640
+    },
+    {
+      "id": "2c9018ef57c6b061_00019",
+      "title": "2c9018ef57c6b061_00019",
+      "group": "2 · Orbit（已筛软糊）",
+      "mode": "video",
+      "still": null,
+      "video": "07_交互式渲染演示/03_环绕轨道视频_orbit_v4/orbit_2c9018ef57c6b061_00019.mp4",
+      "video_alt": null,
+      "path_video": null,
+      "inputs": [
+        "07_交互式渲染演示/02_输入视图_DL3DV精选/2c9018ef57c6b061_00019/input_000000.png",
+        "07_交互式渲染演示/02_输入视图_DL3DV精选/2c9018ef57c6b061_00019/input_000001.png"
+      ],
+      "note": "清晰度合格 · 2 inputs",
+      "quality": "ok",
+      "w": 640,
+      "h": 640
+    },
+    {
+      "id": "45a00d135c5388fc_00012",
+      "title": "45a00d135c5388fc_00012",
+      "group": "2 · Orbit（已筛软糊）",
+      "mode": "video",
+      "still": null,
+      "video": "07_交互式渲染演示/03_环绕轨道视频_orbit_v4/orbit_45a00d135c5388fc_00012.mp4",
+      "video_alt": "07_交互式渲染演示/03_环绕轨道视频_orbit_v4/orbit_45a00d135c5388fc_00012_up.mp4",
+      "path_video": null,
+      "inputs": [
+        "07_交互式渲染演示/02_输入视图_DL3DV精选/45a00d135c5388fc_00012/input_000000.png",
+        "07_交互式渲染演示/02_输入视图_DL3DV精选/45a00d135c5388fc_00012/input_000001.png"
+      ],
+      "note": "清晰度合格 · 2 inputs",
+      "quality": "ok",
+      "w": 640,
+      "h": 640
+    }
+  ]
+}

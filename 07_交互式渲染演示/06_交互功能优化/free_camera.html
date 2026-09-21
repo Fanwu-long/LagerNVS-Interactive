@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LagerNVS · 自由视角</title>
+<style>
+  :root {
+    --bg: #070b10;
+    --ink: #e8eef6;
+    --muted: #8b97a8;
+    --line: rgba(190,210,230,0.14);
+    --teal: #4fb8a8;
+    --amber: #d4a35a;
+    --danger: #e08a8a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; color: var(--ink); font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); overflow: hidden; }
+  .shell { height: 100%; display: grid; grid-template-rows: auto 1fr; }
+  .top { padding: 12px 16px; border-bottom: 1px solid var(--line); background: rgba(8,14,20,0.92); display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+  .brand { letter-spacing: 0.14em; text-transform: uppercase; font-size: 0.68rem; color: var(--teal); }
+  h1 { font-size: 1.15rem; font-weight: 650; }
+  .mode-tabs { display: inline-flex; gap: 4px; margin-left: auto; }
+  .mode-tabs button {
+    border: 1px solid var(--line); background: #121820; color: var(--ink);
+    font: inherit; font-size: 0.82rem; padding: 6px 12px; cursor: pointer;
+  }
+  .mode-tabs button.on { background: rgba(79,184,168,0.2); border-color: var(--teal); }
+  .mode-tabs button:disabled { opacity: 0.45; cursor: not-allowed; }
+  .hint { width: 100%; font-size: 0.8rem; color: var(--muted); line-height: 1.4; }
+  .hint b { color: var(--amber); font-weight: 600; }
+  .hint .bad { color: var(--danger); font-weight: 600; }
+  .main { min-height: 0; display: grid; grid-template-columns: 240px 1fr; }
+  @media (max-width: 800px) { .main { grid-template-columns: 1fr; grid-template-rows: 120px 1fr; } }
+  .side { border-right: 1px solid var(--line); overflow: auto; background: rgba(10,14,20,0.88); }
+  .side h2 { position: sticky; top: 0; padding: 10px 12px; font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); background: rgba(10,14,20,0.95); border-bottom: 1px solid var(--line); }
+  .scene-btn { width: 100%; text-align: left; border: 0; border-bottom: 1px solid rgba(255,255,255,0.05); background: transparent; color: var(--ink); font: inherit; font-size: 0.84rem; padding: 10px 12px; cursor: pointer; }
+  .scene-btn:hover { background: rgba(79,184,168,0.08); }
+  .scene-btn.active { background: rgba(79,184,168,0.16); box-shadow: inset 3px 0 0 var(--teal); }
+  .scene-btn .meta { display: block; margin-top: 2px; font-size: 0.72rem; color: var(--muted); }
+  .stage-wrap { min-height: 0; display: flex; flex-direction: column; position: relative; }
+  .stage {
+    flex: 1; min-height: 0; background: #000; display: grid; place-items: center;
+    cursor: grab; touch-action: none; user-select: none; overflow: hidden; position: relative;
+  }
+  .stage.grabbing { cursor: grabbing; }
+  #view {
+    max-width: calc(100% - 16px); max-height: calc(100% - 16px);
+    width: auto; height: auto; background: #000;
+    transform-origin: center center;
+  }
+  .hud {
+    position: absolute; left: 12px; top: 12px; font-size: 0.78rem; line-height: 1.45;
+    color: rgba(232,238,246,0.9); text-shadow: 0 1px 2px #000; pointer-events: none; max-width: 46ch;
+  }
+  .status {
+    position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%);
+    font-size: 0.78rem; background: rgba(0,0,0,0.5); padding: 4px 10px; border-radius: 3px;
+    white-space: nowrap; pointer-events: none;
+  }
+  .pad {
+    position: absolute; bottom: 18px; display: grid; gap: 4px; user-select: none;
+  }
+  .pad.move { left: 16px; grid-template-columns: repeat(3, 44px); }
+  .pad.look { right: 16px; grid-template-columns: repeat(3, 44px); }
+  .pad button {
+    width: 44px; height: 44px; border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(20,24,30,0.75); color: #eee; font: inherit; font-size: 0.75rem; cursor: pointer;
+  }
+  .pad button:active, .pad button.held { background: rgba(79,184,168,0.35); }
+  .bar {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    padding: 8px 12px; border-top: 1px solid var(--line); background: rgba(10,14,20,0.95);
+  }
+  .bar a, .bar button {
+    border: 1px solid var(--line); background: #141a24; color: var(--ink);
+    font: inherit; font-size: 0.82rem; padding: 6px 10px; text-decoration: none; cursor: pointer;
+  }
+  .bar button.on { border-color: var(--teal); background: rgba(79,184,168,0.18); }
+  .live-frame {
+    position: absolute; inset: 0; border: 0; width: 100%; height: 100%; display: none; background: #000;
+  }
+  .live-frame.on { display: block; }
+  .rail-ui.hidden { display: none !important; }
+</style>
+</head>
+<body>
+  <div class="shell">
+    <header class="top">
+      <div>
+        <div class="brand">LagerNVS · Free Camera</div>
+        <h1>自由视角操控</h1>
+      </div>
+      <div class="mode-tabs">
+        <button type="button" id="tab-rail" class="on">A · 轨道自由操控（可用）</button>
+        <button type="button" id="tab-live" disabled>B · 真·自由视角 Live（检测中）</button>
+      </div>
+      <p class="hint" id="hint">加载中…</p>
+    </header>
+
+    <div class="main">
+      <aside class="side rail-ui" id="side">
+        <h2>场景</h2>
+        <div id="scene-list"></div>
+      </aside>
+      <section class="stage-wrap">
+        <iframe class="live-frame" id="live-frame" title="Live free camera" allow="autoplay"></iframe>
+        <div class="stage rail-ui" id="stage">
+          <video id="view" playsinline muted preload="auto"></video>
+          <div class="hud" id="hud"></div>
+          <div class="status" id="status">Ready</div>
+          <div class="pad move" id="pad-move">
+            <button type="button" data-k="q">Q</button>
+            <button type="button" data-k="w">W</button>
+            <button type="button" data-k="e">E</button>
+            <button type="button" data-k="a">A</button>
+            <button type="button" data-k="s">S</button>
+            <button type="button" data-k="d">D</button>
+          </div>
+          <div class="pad look" id="pad-look">
+            <span></span>
+            <button type="button" data-k="ArrowUp">↑</button>
+            <span></span>
+            <button type="button" data-k="ArrowLeft">←</button>
+            <button type="button" data-k="ArrowDown">↓</button>
+            <button type="button" data-k="ArrowRight">→</button>
+          </div>
+        </div>
+        <div class="bar">
+          <a href="portal.html?v=me">← 门户</a>
+          <a href="offline_orbit_viewer.html">Offline 浏览</a>
+          <a href="free_live_viewer.html" id="open-live">Live 页</a>
+          <button type="button" id="btn-reset">复位</button>
+          <button type="button" id="btn-orbit">自动环绕</button>
+          <span id="meta" style="color:var(--muted);font-size:0.8rem;">—</span>
+        </div>
+      </section>
+    </div>
+  </div>
+<script>
+(function () {
+  const video = document.getElementById("view");
+  const stage = document.getElementById("stage");
+  const listEl = document.getElementById("scene-list");
+  const statusEl = document.getElementById("status");
+  const metaEl = document.getElementById("meta");
+  const hud = document.getElementById("hud");
+  const hint = document.getElementById("hint");
+  const liveFrame = document.getElementById("live-frame");
+  const tabLive = document.getElementById("tab-live");
+  const tabRail = document.getElementById("tab-rail");
+  const btnOrbit = document.getElementById("btn-orbit");
+  const openLive = document.getElementById("open-live");
+
+  let scenes = [];
+  let index = 0;
+  let mode = "rail";
+  let liveOk = false;
+  let autoOrbit = false;
+  let keys = {};
+  let dragging = false;
+  let lastX = 0, lastY = 0;
+  let yaw = 0.5;
+  let pitch = 0;
+  let elev = 0;
+  let speed = 0.35;
+  let seeking = false;
+  let pendingYaw = null;
+  let liveWatch = null;
+
+  let LIVE_HTTP = "http://127.0.0.1:8765/";
+  const LIVE_PAGE = "free_live_viewer.html";
+
+  function setStatus(t) { statusEl.textContent = t; }
+
+  function assetUrl(p) {
+    if (!p) return null;
+    return "/" + String(p).replace(/^\/+/, "").split("/").map(encodeURIComponent).join("/");
+  }
+
+  /** Server-side probe avoids browser CORS false negatives on public Live tunnels. */
+  async function resolveLiveTargets() {
+    try {
+      const r = await fetch("/api/live_status", { cache: "no-store" });
+      if (r.ok) {
+        const j = await r.json();
+        if (j.ok && j.url) {
+          LIVE_HTTP = j.url;
+          return true;
+        }
+      }
+    } catch (_) {}
+    LIVE_HTTP = "http://127.0.0.1:8765/";
+    return false;
+  }
+
+  function applyVideoTime() {
+    if (!video.duration || !isFinite(video.duration)) return;
+    const next = ((yaw % 1) + 1) % 1 * video.duration;
+    pendingYaw = next;
+    // Avoid seek thrash: skip tiny moves while already seeking
+    if (seeking) return;
+    if (Math.abs(video.currentTime - next) < 0.02) {
+      const tilt = pitch * 18;
+      const lift = elev * 12;
+      video.style.transform = `perspective(900px) rotateX(${tilt}deg) translateY(${lift}px)`;
+      metaEl.textContent = `yaw ${(yaw * 360).toFixed(0)}° · pitch ${(pitch * 57.3).toFixed(0)}° · t=${video.currentTime.toFixed(2)}s`;
+      return;
+    }
+    seeking = true;
+    try {
+      video.currentTime = next;
+    } catch (_) {
+      seeking = false;
+    }
+    const tilt = pitch * 18;
+    const lift = elev * 12;
+    video.style.transform = `perspective(900px) rotateX(${tilt}deg) translateY(${lift}px)`;
+    metaEl.textContent = `yaw ${(yaw * 360).toFixed(0)}° · pitch ${(pitch * 57.3).toFixed(0)}° · t=${next.toFixed(2)}s`;
+  }
+
+  video.addEventListener("seeked", () => {
+    seeking = false;
+    if (pendingYaw != null && Math.abs(video.currentTime - pendingYaw) > 0.04) {
+      const t = pendingYaw;
+      pendingYaw = null;
+      seeking = true;
+      try { video.currentTime = t; } catch (_) { seeking = false; }
+    } else {
+      pendingYaw = null;
+    }
+  });
+
+  function renderList() {
+    listEl.innerHTML = scenes.map((s, i) =>
+      `<button type="button" class="scene-btn ${i === index ? "active" : ""}" data-i="${i}">
+        ${s.title}<span class="meta">${s.note || s.group || ""}</span></button>`
+    ).join("");
+  }
+
+  function load(i) {
+    if (!scenes.length) return;
+    index = (i + scenes.length) % scenes.length;
+    const s = scenes[index];
+    renderList();
+    yaw = 0.5; pitch = 0; elev = 0;
+    hud.innerHTML = "拖拽转向 · WASD 沿轨道移动 · Q/E 升降感 · 滚轮微调<br>当前是 <b>A 轨道自由操控</b>（本地视频，无需 GPU）";
+    setStatus("加载 " + s.title);
+    video.src = s.video;
+    video.load();
+    video.onloadedmetadata = () => {
+      applyVideoTime();
+      video.pause();
+      setStatus(`${s.title} · ${video.videoWidth}×${video.videoHeight} · 操控已启用`);
+    };
+    video.onerror = () => setStatus("视频加载失败：" + s.video);
+  }
+
+  function clearLiveWatch() {
+    if (liveWatch) {
+      clearTimeout(liveWatch);
+      liveWatch = null;
+    }
+  }
+
+  function updateLiveTabUi() {
+    if (liveOk) {
+      tabLive.disabled = false;
+      tabLive.textContent = "B · 真·自由视角 Live（在线）";
+      openLive.href = /127\.0\.0\.1|localhost/i.test(LIVE_HTTP)
+        ? LIVE_PAGE
+        : LIVE_HTTP;
+    } else {
+      tabLive.disabled = false; // allow retry click → shows hint / re-probe
+      tabLive.textContent = "B · 真·自由视角 Live（离线·点此重试）";
+      openLive.href = LIVE_HTTP || "http://127.0.0.1:8765/";
+    }
+  }
+
+  /** Soft fallback: return to A, keep B retryable. Never permanent-disable. */
+  function fallBackRail(reason) {
+    clearLiveWatch();
+    liveFrame.classList.remove("on");
+    liveFrame.removeAttribute("src");
+    mode = "rail";
+    tabLive.classList.remove("on");
+    tabRail.classList.add("on");
+    document.querySelectorAll(".rail-ui").forEach((el) => el.classList.remove("hidden"));
+    updateLiveTabUi();
+    hint.innerHTML = `<span class="bad">Live 暂不可用</span>：${reason || "未收到渲染帧"}。已回 <b>A</b>。可稍后再点 B，或 SSH 转发后点 B 重试。`;
+  }
+
+  function setMode(m) {
+    if (m === "live") {
+      if (!liveOk) {
+        // Re-probe then decide
+        hint.innerHTML = "正在重新检测 Live…";
+        resolveLiveTargets().then((ok) => {
+          liveOk = ok;
+          updateLiveTabUi();
+          if (ok) setMode("live");
+          else {
+            hint.innerHTML = `<span class="bad">Live GPU 仍离线</span>。请 <code>ssh -L 8765:&lt;GPU_IP&gt;:8765 ustc-lager</code> 后重试；当前用 <b>A</b>。`;
+          }
+        });
+        return;
+      }
+    }
+
+    mode = m;
+    tabLive.classList.toggle("on", m === "live");
+    tabRail.classList.toggle("on", m === "rail");
+    document.querySelectorAll(".rail-ui").forEach((el) => el.classList.toggle("hidden", m === "live"));
+
+    if (m === "live") {
+      // Local 8765 → embed free_live_viewer (WS to local).
+      // Remote tunnel → iframe Live host itself (page+WS same origin, more reliable).
+      const useRemotePage = LIVE_HTTP && !/127\.0\.0\.1|localhost/i.test(LIVE_HTTP);
+      liveFrame.src = useRemotePage
+        ? LIVE_HTTP
+        : (LIVE_PAGE + "?embed=1&_=" + Date.now());
+      liveFrame.classList.add("on");
+      hint.innerHTML = useRemotePage
+        ? "<b>正在打开远程 Live…</b> 若长时间无画面将退回 A（隧道常丢帧，优先本机 SSH :8765）。"
+        : "<b>正在连接本机 Live…</b> 若 25 秒内无画面将退回 A。";
+      clearLiveWatch();
+      liveWatch = setTimeout(() => {
+        if (mode === "live") {
+          fallBackRail(useRemotePage
+            ? "远程隧道未出帧（请改用本机 SSH 转发 8765）"
+            : "本机 8765 未出帧（确认 GPU WebUI + SSH 转发）");
+        }
+      }, useRemotePage ? 15000 : 25000);
+    } else {
+      clearLiveWatch();
+      liveFrame.classList.remove("on");
+      liveFrame.removeAttribute("src");
+      hint.innerHTML = liveOk
+        ? "<b>A 轨道自由操控</b>已启用。Live 在线时可点 B。"
+        : "<b>A 轨道自由操控</b>已启用（无需 GPU）。左侧换场景 · 拖拽/WASD · 可开自动环绕。";
+    }
+  }
+
+  window.addEventListener("message", (ev) => {
+    const data = ev.data || {};
+    if (data.type === "lagernvs-live-ready") {
+      clearLiveWatch();
+      if (mode === "live") {
+        hint.innerHTML = "<b>B · 真·自由视角已出帧。</b> 拖拽旋转 · WASD 移动 · 任意位姿实时神经渲染。";
+      }
+    } else if (data.type === "lagernvs-live-fail") {
+      // Hard fail only (kept for compatibility)
+      if (mode === "live") fallBackRail(data.reason || "WebSocket 失败");
+    }
+    // soft-fail ignored — reconnect handled inside iframe
+  });
+
+  // For remote Live iframe (cross-origin): treat load as soft-ready, still keep timeout for black frames
+  liveFrame.addEventListener("load", () => {
+    if (mode !== "live") return;
+    if (LIVE_HTTP && !/127\.0\.0\.1|localhost/i.test(LIVE_HTTP)) {
+      hint.innerHTML = "<b>远程 Live 页面已加载。</b> 若仍是黑屏，请改用本机 <code>127.0.0.1:8765</code> SSH 转发。";
+    }
+  });
+
+  stage.addEventListener("pointerdown", (e) => {
+    if (mode !== "rail") return;
+    dragging = true;
+    stage.classList.add("grabbing");
+    stage.setPointerCapture(e.pointerId);
+    lastX = e.clientX; lastY = e.clientY;
+    autoOrbit = false;
+    btnOrbit.classList.remove("on");
+  });
+  stage.addEventListener("pointermove", (e) => {
+    if (!dragging || mode !== "rail") return;
+    const dx = e.clientX - lastX;
+    const dy = e.clientY - lastY;
+    lastX = e.clientX; lastY = e.clientY;
+    yaw += dx / Math.max(stage.clientWidth, 1);
+    pitch = Math.max(-0.35, Math.min(0.35, pitch - dy / Math.max(stage.clientHeight, 1)));
+    applyVideoTime();
+  });
+  stage.addEventListener("pointerup", () => { dragging = false; stage.classList.remove("grabbing"); });
+  stage.addEventListener("pointercancel", () => { dragging = false; stage.classList.remove("grabbing"); });
+  stage.addEventListener("wheel", (e) => {
+    if (mode !== "rail") return;
+    e.preventDefault();
+    yaw += (e.deltaY > 0 ? 0.02 : -0.02);
+    applyVideoTime();
+  }, { passive: false });
+
+  window.addEventListener("keydown", (e) => {
+    if (mode !== "rail") return;
+    keys[e.key.toLowerCase()] = true;
+    keys[e.key] = true;
+    if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].includes(e.key)) e.preventDefault();
+  });
+  window.addEventListener("keyup", (e) => {
+    keys[e.key.toLowerCase()] = false;
+    keys[e.key] = false;
+  });
+
+  function bindPad(root) {
+    root.querySelectorAll("button[data-k]").forEach((btn) => {
+      const k = btn.dataset.k;
+      const down = (ev) => { ev.preventDefault(); keys[k] = true; keys[k.toLowerCase()] = true; btn.classList.add("held"); };
+      const up = () => { keys[k] = false; keys[k.toLowerCase()] = false; btn.classList.remove("held"); };
+      btn.addEventListener("pointerdown", down);
+      btn.addEventListener("pointerup", up);
+      btn.addEventListener("pointerleave", up);
+    });
+  }
+  bindPad(document.getElementById("pad-move"));
+  bindPad(document.getElementById("pad-look"));
+
+  function tick() {
+    if (mode === "rail") {
+      const dt = 1 / 60;
+      if (autoOrbit) {
+        yaw += 0.08 * dt;
+      } else {
+        if (keys["w"]) yaw += speed * dt;
+        if (keys["s"]) yaw -= speed * dt;
+        if (keys["d"] || keys["arrowright"]) yaw += speed * 0.7 * dt;
+        if (keys["a"] || keys["arrowleft"]) yaw -= speed * 0.7 * dt;
+        if (keys["arrowup"]) pitch = Math.min(0.35, pitch + 0.4 * dt);
+        if (keys["arrowdown"]) pitch = Math.max(-0.35, pitch - 0.4 * dt);
+        if (keys["q"]) elev = Math.min(0.5, elev + 0.5 * dt);
+        if (keys["e"]) elev = Math.max(-0.5, elev - 0.5 * dt);
+      }
+      if (video.duration) applyVideoTime();
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  listEl.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-i]");
+    if (!btn) return;
+    load(Number(btn.dataset.i));
+  });
+  document.getElementById("btn-reset").onclick = () => { yaw = 0.5; pitch = 0; elev = 0; applyVideoTime(); };
+  btnOrbit.onclick = () => {
+    autoOrbit = !autoOrbit;
+    btnOrbit.classList.toggle("on", autoOrbit);
+  };
+  tabLive.onclick = () => setMode("live");
+  tabRail.onclick = () => setMode("rail");
+
+  fetch("/offline_manifest.json").then((r) => r.json()).then(async (m) => {
+    scenes = (m.scenes || [])
+      .filter((s) => s.video)
+      .map((s) => ({ ...s, video: assetUrl(s.video), title: s.title || s.id }));
+    scenes.sort((a, b) => {
+      const ah = String(a.id).startsWith("hq_") ? 0 : 1;
+      const bh = String(b.id).startsWith("hq_") ? 0 : 1;
+      return ah - bh;
+    });
+    if (!scenes.length) throw new Error("no videos");
+
+    liveOk = await resolveLiveTargets();
+    updateLiveTabUi();
+    if (liveOk) {
+      hint.innerHTML = `Live 已检测到（${LIVE_HTTP}）。默认 <b>A 轨道操控</b>；要任意新视角再点 B。`;
+    } else {
+      hint.innerHTML = "<b>A 轨道自由操控可用</b>（本地预渲染）。B Live 离线：点 B 可重试检测，或先 SSH 转发到本机 8765。";
+    }
+
+    const want = new URLSearchParams(location.search).get("scene");
+    let start = 0;
+    if (want) {
+      const i = scenes.findIndex((s) => s.id === want || s.title === want);
+      if (i >= 0) start = i;
+    } else {
+      // Prefer clearest curated orbit for first impression
+      const pref = scenes.findIndex((s) => s.id === "scenea_2v");
+      if (pref >= 0) start = pref;
+    }
+    load(start);
+    // Auto-orbit on for demo presence
+    autoOrbit = true;
+    btnOrbit.classList.add("on");
+    setMode("rail");
+
+    // Periodic Live re-detect (SSH may come up later)
+    setInterval(async () => {
+      const ok = await resolveLiveTargets();
+      if (ok !== liveOk) {
+        liveOk = ok;
+        updateLiveTabUi();
+        if (ok && mode === "rail") {
+          hint.innerHTML = `检测到 Live 上线（${LIVE_HTTP}）。可点 <b>B</b> 进入真·自由视角。`;
+        }
+      }
+    }, 20000);
+  }).catch((err) => {
+    hint.innerHTML = `<span class="bad">加载失败：</span>${err.message}`;
+  });
+})();
+</script>
+</body>
+</html>

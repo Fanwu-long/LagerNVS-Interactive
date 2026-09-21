@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LagerNVS Interactive</title>
+<style>
+  :root {
+    --bg: #081016;
+    --ink: #e7eef5;
+    --muted: #8a97a8;
+    --line: rgba(180, 205, 230, 0.14);
+    --teal: #4fb8a8;
+    --teal-dim: rgba(79, 184, 168, 0.14);
+    --amber: #d4a35a;
+    --amber-dim: rgba(212, 163, 90, 0.12);
+    --danger: #e08a8a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100%; }
+  body {
+    color: var(--ink);
+    font-family: "Segoe UI", "IBM Plex Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(1100px 560px at 8% -10%, rgba(79,184,168,0.16), transparent 55%),
+      radial-gradient(900px 480px at 100% 0%, rgba(70,100,150,0.18), transparent 50%),
+      linear-gradient(165deg, #0a141c 0%, #081016 45%, #0c1218 100%);
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 36px 22px 48px; }
+  .brand {
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    color: var(--teal);
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-size: clamp(1.8rem, 4vw, 2.55rem);
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    max-width: 18ch;
+  }
+  .lead {
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.55;
+    max-width: 52ch;
+  }
+  .edition {
+    margin-top: 22px;
+    display: inline-flex;
+    gap: 6px;
+    padding: 4px;
+    border: 1px solid var(--line);
+    background: rgba(0,0,0,0.25);
+  }
+  .edition a {
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 0.84rem;
+    padding: 8px 14px;
+  }
+  .edition a.on {
+    background: var(--teal-dim);
+    color: var(--ink);
+  }
+  .badge {
+    display: inline-block;
+    margin-top: 14px;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    color: var(--amber);
+    border: 1px solid rgba(212,163,90,0.35);
+    padding: 4px 10px;
+    background: var(--amber-dim);
+  }
+  .grid {
+    margin-top: 34px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
+  .choice {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid var(--line);
+    background: rgba(10, 16, 22, 0.72);
+    padding: 22px 20px 20px;
+    min-height: 220px;
+    transition: border-color .15s, background .15s, transform .15s;
+  }
+  .choice:hover {
+    border-color: rgba(79,184,168,0.55);
+    background: rgba(14, 24, 32, 0.9);
+    transform: translateY(-2px);
+  }
+  .choice.live:hover { border-color: rgba(212,163,90,0.6); }
+  .choice.disabled { opacity: 0.55; pointer-events: none; }
+  .kicker {
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .choice.live .kicker { color: var(--amber); }
+  .choice.offline .kicker { color: var(--teal); }
+  .choice h2 { font-size: 1.35rem; font-weight: 650; margin-bottom: 10px; }
+  .choice p { color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
+  .status { margin-top: 18px; font-size: 0.78rem; color: var(--muted); }
+  .status .ok { color: #7dcca8; }
+  .status .bad { color: var(--danger); }
+  .status .wait { color: var(--amber); }
+  .cta { margin-top: 16px; font-size: 0.86rem; }
+  .cta span { color: var(--teal); }
+  .choice.live .cta span { color: var(--amber); }
+  .foot {
+    margin-top: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 22px;
+    align-items: center;
+    color: var(--muted);
+    font-size: 0.86rem;
+  }
+  .foot a { color: var(--teal); }
+  .stats { margin-top: 8px; font-size: 0.8rem; color: #6f7d90; }
+  .note {
+    margin-top: 18px;
+    padding: 12px 14px;
+    border-left: 3px solid var(--teal);
+    background: rgba(0,0,0,0.28);
+    color: var(--muted);
+    font-size: 0.86rem;
+    line-height: 1.5;
+    max-width: 70ch;
+  }
+  .pick {
+    margin-top: 28px;
+  }
+  .pick h3 {
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    text-decoration: none;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    background: rgba(0,0,0,0.28);
+    padding: 8px 12px;
+    font-size: 0.82rem;
+    line-height: 1.35;
+    max-width: 100%;
+    transition: border-color .15s, background .15s;
+  }
+  .chip:hover {
+    border-color: rgba(79,184,168,0.55);
+    background: rgba(14, 24, 32, 0.9);
+  }
+  .chip .g {
+    display: block;
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">LagerNVS · Interactive</div>
+    <h1 id="headline">自由选择演示门户</h1>
+    <p class="lead" id="lead">三入口任选：自由视角 / Live GPU / Offline 场景。左侧场景可直接点进 Offline。</p>
+    <div class="edition">
+      <a href="?v=me" id="tab-me">本地版</a>
+      <a href="?v=share" id="tab-share">分享版</a>
+    </div>
+    <div class="badge" id="badge">加载中…</div>
+    <p class="stats" id="stats"></p>
+
+    <div class="grid">
+      <a class="choice live" id="card-free" href="/07_交互式渲染演示/06_交互功能优化/free_camera.html">
+        <div class="kicker">A · Free Camera</div>
+        <h2>自由视角操控</h2>
+        <p>自选场景 · WASD / 拖拽。Live 在线时切真·任意新视角；否则在预渲染轨道内自由操控。</p>
+        <div class="status" id="free-status"><span class="wait">检测中…</span></div>
+        <div class="cta">进入 <span>→</span></div>
+      </a>
+      <a class="choice live" id="card-live" href="#">
+        <div class="kicker">B · Live GPU</div>
+        <h2>实时神经网络渲染</h2>
+        <p>GPU 按当前位姿当场推理。仅在本机 8765（或已验证公网）真正在线时可点；假在线已禁用，避免黑屏。</p>
+        <div class="status" id="live-status"><span class="wait">检测中…</span></div>
+        <div class="cta">进入 <span>→</span></div>
+      </a>
+      <a class="choice offline" id="card-offline" href="#">
+        <div class="kicker">C · Offline</div>
+        <h2>离线高质量交互</h2>
+        <p>自选 HQ→Orbit / 静帧 / 环绕轨道。无需 GPU，适合讲解与稳定演示。</p>
+        <div class="status" id="offline-status"><span class="wait">检测中…</span></div>
+        <div class="cta">进入 <span>→</span></div>
+      </a>
+    </div>
+
+    <section class="pick">
+      <h3>直接选场景（Offline）</h3>
+      <div class="chips" id="scene-chips"><span style="color:var(--muted);font-size:0.84rem;">加载场景列表…</span></div>
+    </section>
+
+    <div class="note" id="note"></div>
+    <div class="foot">
+      <a id="link-tech" href="#">技术原理</a>
+      <a id="link-guide" href="/04_说明文档/使用说明.md">使用说明</a>
+      <a href="#" id="btn-refresh-live">刷新 Live 检测</a>
+      <span id="foot-hint"></span>
+    </div>
+  </div>
+<script>
+(function () {
+  const params = new URLSearchParams(location.search);
+  let edition = params.get("v") || "me";
+  if (edition === "self") edition = "me";
+  if (edition !== "me" && edition !== "share") edition = "me";
+
+  document.getElementById("tab-me").classList.toggle("on", edition === "me");
+  document.getElementById("tab-share").classList.toggle("on", edition === "share");
+
+  const defaults = {
+    live_url_me: "http://127.0.0.1:8765/",
+    live_url_share: "",
+    live_url_fallback: "",
+    offline_path: "/07_交互式渲染演示/06_交互功能优化/offline_orbit_viewer.html",
+    free_path: "/07_交互式渲染演示/06_交互功能优化/free_camera.html",
+    tech_path: "/07_交互式渲染演示/06_交互功能优化/tech_principles.html",
+    stats: null,
+  };
+
+  function absUrl(pathOrUrl) {
+    if (!pathOrUrl) return "";
+    if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
+    return new URL(pathOrUrl, location.origin).href;
+  }
+
+  function uniq(arr) {
+    const out = [];
+    for (const x of arr) {
+      if (x && !out.includes(x)) out.push(x);
+    }
+    return out;
+  }
+
+  async function probe(url, { live = false } = {}) {
+    if (!url) return false;
+    // Same-origin portal pages: HEAD/GET ok is enough.
+    // Live endpoints: require real 200 + viewer HTML (never trust no-cors opaque).
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), live ? 3500 : 2500);
+      const r = await fetch(url, { method: "GET", mode: "cors", cache: "no-store", signal: ctrl.signal });
+      clearTimeout(t);
+      if (!r.ok) return false;
+      if (!live) return true;
+      const text = await r.text();
+      return /LagerNVS|interactive_viewer|WebSocket|canvas/i.test(text);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function renderScenes(offlineUrl, scenes) {
+    const el = document.getElementById("scene-chips");
+    if (!scenes || !scenes.length) {
+      el.innerHTML = `<span style="color:var(--muted);font-size:0.84rem;">暂无场景清单</span>`;
+      return;
+    }
+    el.innerHTML = scenes.map((s) => {
+      const href = offlineUrl + (offlineUrl.includes("?") ? "&" : "?") + "scene=" + encodeURIComponent(s.id || s.title);
+      return `<a class="chip" href="${href}" title="Offline 打开此场景">${(s.group ? `<span class="g">${s.group}</span>` : "")}${s.title || s.id}</a>`;
+    }).join("");
+  }
+
+  function apply(cfg) {
+    const isMe = edition === "me";
+    document.getElementById("badge").textContent = isMe ? "本地版 · 127.0.0.1:8766" : "分享版 · 当前访问域名";
+    document.getElementById("headline").textContent = "自由选择演示门户";
+    document.getElementById("lead").textContent = isMe
+      ? "本地稳定门户。下方可直接点场景；Live 由服务端探测，避免假在线黑屏。"
+      : "通过当前链接访问。Offline / 自由视角始终可用；Live 仅在真正在线时启用。";
+
+    const offlineUrl = absUrl(cfg.offline_path || defaults.offline_path);
+    const freeUrl = absUrl(cfg.free_path || defaults.free_path);
+    const techUrl = absUrl(cfg.tech_path || defaults.tech_path);
+    const freeLivePath = "/07_交互式渲染演示/06_交互功能优化/free_live_viewer.html";
+
+    const cardLive = document.getElementById("card-live");
+    const cardOff = document.getElementById("card-offline");
+    const cardFree = document.getElementById("card-free");
+    cardOff.href = offlineUrl;
+    cardFree.href = freeUrl;
+    document.getElementById("link-tech").href = techUrl + "?v=" + edition;
+
+    const st = cfg.stats || {};
+    document.getElementById("stats").textContent = st.scenes != null
+      ? `可选样本：${st.scenes} 场景 · ${st.hq_stills || 0} HQ 静帧 · ${st.orbit_clips || 0} 轨道 · ${st.input_thumbs || 0} 输入图`
+      : "";
+
+    document.getElementById("note").textContent = isMe
+      ? "A=轨道自由操控（本地可用）。B=Live GPU（真在线才可点）。C=Offline 选场景。"
+      : "分享版：Offline/自由视角不依赖 GPU；Live 仅在公网地址真正可用时启用。";
+
+    document.getElementById("foot-hint").textContent = "LagerNVS Interactive 门户最终版";
+
+    fetch("/offline_manifest.json", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : { scenes: [] }))
+      .then((m) => renderScenes(offlineUrl, m.scenes || []))
+      .catch(() => renderScenes(offlineUrl, []));
+
+    (async () => {
+      const ok = await probe(offlineUrl);
+      document.getElementById("offline-status").innerHTML = ok
+        ? `<span class="ok">可用</span> · 可自由选场景`
+        : `<span class="bad">不可用</span> · 请启动 启动本地版.py`;
+      cardOff.classList.toggle("disabled", !ok);
+      const freeOk = await probe(freeUrl);
+      document.getElementById("free-status").innerHTML = freeOk
+        ? `<span class="ok">可用</span> · A 轨道操控（无需 GPU）`
+        : `<span class="bad">不可用</span>`;
+      cardFree.classList.toggle("disabled", !freeOk);
+    })();
+
+    (async () => {
+      const liveStatus = document.getElementById("live-status");
+      try {
+        const r = await fetch("/api/live_status", { cache: "no-store" });
+        const j = r.ok ? await r.json() : { ok: false };
+        if (j.ok && j.url) {
+          cardLive.href = /127\.0\.0\.1|localhost/i.test(j.url) ? absUrl(freeLivePath) : j.url;
+          cardLive.classList.remove("disabled");
+          const via = /127\.0\.0\.1|localhost/i.test(j.url) ? "本机 8765" : "公网 Live";
+          liveStatus.innerHTML = `<span class="ok">在线</span> · ${via}`;
+          return;
+        }
+        if (j.hint) {
+          document.getElementById("note").textContent =
+            "Live 离线。本机转发： " + j.hint + " → 然后点「刷新 Live 检测」。汇报可先用 A/C。";
+        }
+      } catch (_) {}
+      cardLive.href = absUrl(freeLivePath);
+      cardLive.classList.remove("disabled"); // still openable → viewer shows reconnect/help
+      liveStatus.innerHTML = `<span class="bad">离线</span> · 可进页等待 / 先用 A`;
+    })();
+  }
+
+  document.getElementById("btn-refresh-live").addEventListener("click", (e) => {
+    e.preventDefault();
+    location.reload();
+  });
+
+  fetch("/portal_config.json", { cache: "no-store" })
+    .then((r) => (r.ok ? r.json() : {}))
+    .then((cfg) => apply({ ...defaults, ...cfg }))
+    .catch(() => apply(defaults));
+})();
+</script>
+</body>
+</html>

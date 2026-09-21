@@ -1,0 +1,32 @@
+[
+  {
+    "id": "45a00d135c5388fc_00012",
+    "source": "showcase",
+    "file": "07_交互式渲染演示/03_环绕轨道视频_orbit_v4/hq_from_still/orbit_hq_45a00d135c5388fc_00012.mp4",
+    "from": "45a00d135c5388fc_6v_100f.mp4"
+  },
+  {
+    "id": "eae986c8f31081cc_00051",
+    "source": "showcase",
+    "file": "07_交互式渲染演示/03_环绕轨道视频_orbit_v4/hq_from_still/orbit_hq_eae986c8f31081cc_00051.mp4",
+    "from": "eae986c8f31081cc_6v_100f.mp4"
+  },
+  {
+    "id": "e9670b30a2c0e348_00001",
+    "source": "showcase",
+    "file": "07_交互式渲染演示/03_环绕轨道视频_orbit_v4/hq_from_still/orbit_hq_e9670b30a2c0e348_00001.mp4",
+    "from": "e9670b30a2c0e348_6v_100f.mp4"
+  },
+  {
+    "id": "c1ad4232258e87c9_00014",
+    "source": "synth_pred",
+    "file": "07_交互式渲染演示/03_环绕轨道视频_orbit_v4/hq_from_still/orbit_hq_c1ad4232258e87c9_00014.mp4",
+    "from": "COMPARE_c1ad4232258e87c9_00014.png"
+  },
+  {
+    "id": "fbcd62ab8ff30b4f_00013",
+    "source": "synth_pred",
+    "file": "07_交互式渲染演示/03_环绕轨道视频_orbit_v4/hq_from_still/orbit_hq_fbcd62ab8ff30b4f_00013.mp4",
+    "from": "COMPARE_fbcd62ab8ff30b4f_00013.png"
+  }
+]

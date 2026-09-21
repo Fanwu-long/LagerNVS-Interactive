@@ -1,0 +1,16 @@
+LagerNVS Interactive 最终版
+updated: 2026-09-13 14:36:12
+
+【本地版】
+  http://127.0.0.1:8766/?v=me
+  Live : http://127.0.0.1:8765/
+  原理: http://127.0.0.1:8766/07_交互式渲染演示/06_交互功能优化/tech_principles.html
+
+【分享版】
+  http://127.0.0.1:8766/?v=share
+  Live 公网: https://000236233798bf.lhr.life/
+
+样本: 10 scenes | 5 HQ | 10 orbit | 24 inputs
+
+启动本地: python 07_交互式渲染演示/06_交互功能优化/start_portal.py
+启动分享: python 07_交互式渲染演示/06_交互功能优化/start_portal.py --share --tunnel

@@ -1,0 +1,5 @@
+﻿LagerNVS 分享链接（localhost.run / lhr.life — 国内通常比 trycloudflare 好开）
+https://2204bf4f82c338.lhr.life/?v=share
+
+更新: 2026-09-12 21:15:58
+保持本机开机、勿休眠；不要结束 ssh.exe 进程。
